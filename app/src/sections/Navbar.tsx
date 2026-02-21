@@ -1,8 +1,10 @@
 import { useEffect, useState, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { Menu, X } from 'lucide-react';
 
 const Navbar = () => {
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
@@ -90,6 +92,14 @@ const Navbar = () => {
                 </a>
               ))}
             </div>
+
+            {/* Admin Link */}
+            <button
+              onClick={() => navigate('/admin')}
+              className="hidden md:block px-4 py-2 text-xs text-white/60 hover:text-white font-body tracking-wider uppercase transition-colors duration-300 border-l border-white/20 ml-4 pl-4"
+            >
+              Admin
+            </button>
 
             {/* CTA Button */}
             <a

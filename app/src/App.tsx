@@ -7,6 +7,9 @@ import Navbar from './sections/Navbar';
 import Hero from './sections/Hero';
 import About from './sections/About';
 import Portfolio from './sections/Portfolio';
+import WebDevelopment from './sections/WebDevelopment';
+import BrandDesign from './sections/BrandDesign';
+import AIAutomation from './sections/AIAutomation';
 import Services from './sections/Services';
 import Contact from './sections/Contact';
 import Footer from './sections/Footer';
@@ -79,6 +82,9 @@ function App() {
         <Hero />
         <About />
         <Portfolio />
+        <WebDevelopment />
+        <BrandDesign />
+        <AIAutomation />
         <Services />
         <Contact />
         <Footer />
