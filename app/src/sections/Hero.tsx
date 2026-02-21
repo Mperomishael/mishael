@@ -111,13 +111,13 @@ const Hero = () => {
       {/* Corner Metadata */}
       <div className="corner-tl absolute top-8 left-8 z-20 opacity-0">
         <p className="text-xs tracking-[0.3em] text-white/60 uppercase font-body">
-          Based In Lagos, NG
+          Based In Delta State, NG
         </p>
       </div>
 
       <div className="corner-tr absolute top-8 right-8 z-20 opacity-0">
         <p className="text-xs tracking-[0.3em] text-white/60 uppercase font-body">
-          Portfolio 2024
+          Portfolio 2026
         </p>
       </div>
 
@@ -125,7 +125,7 @@ const Hero = () => {
         <div className="flex items-center gap-2">
           <span className="w-2 h-2 bg-green-400 rounded-full animate-pulse" />
           <p className="text-xs tracking-[0.2em] text-white/60 uppercase font-body">
-            Available for freelance
+            Available for freelance 
           </p>
         </div>
       </div>
