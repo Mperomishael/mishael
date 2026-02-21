@@ -100,7 +100,7 @@ const Hero = () => {
         }}
       >
         <img
-          src="/hero-bg.jpg"
+          src="/apppublichero-bg.jpeg"
           alt="Mishael Yakubu"
           className="w-full h-full object-cover breathing"
         />
