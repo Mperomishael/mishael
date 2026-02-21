@@ -157,7 +157,15 @@ export const getSubscribers = async () => {
   try {
     const q = query(collection(firestore, 'subscribers'), where('status', '==', 'active'));
     const querySnapshot = await getDocs(q);
-    return querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    return querySnapshot.docs.map(doc => ({ 
+      id: doc.id, 
+      email: doc.data().email,
+      name: doc.data().name,
+      subscribedAt: doc.data().subscribedAt,
+      status: doc.data().status,
+      receivedWelcome: doc.data().receivedWelcome,
+      lastEmailSent: doc.data().lastEmailSent
+    }));
   } catch (error) {
     console.error('Error getting subscribers:', error);
     return [];
@@ -167,13 +175,10 @@ export const getSubscribers = async () => {
 // Send project announcement to all subscribers
 export const sendProjectAnnouncement = async (
   projectName: string,
-  category: string,
-  subscriberIds?: string[]
+  category: string
 ) => {
   try {
-    const subscribers = subscriberIds 
-      ? await Promise.all(subscriberIds.map(id => getDocs(query(collection(firestore, 'subscribers')))))
-      : await getSubscribers();
+    const subscribers = await getSubscribers();
 
     const portfolioUrl = window.location.origin;
     const emailHtml = emailTemplates.projectAnnouncement(projectName, category, portfolioUrl);
@@ -193,8 +198,8 @@ export const sendProjectAnnouncement = async (
         // Update last email sent timestamp
         const q = query(collection(firestore, 'subscribers'), where('email', '==', subscriber.email));
         const docs = await getDocs(q);
-        docs.forEach(doc => {
-          batch.update(doc.ref, { lastEmailSent: new Date() });
+        docs.forEach(docSnap => {
+          batch.update(docSnap.ref, { lastEmailSent: new Date() });
         });
       }
     }

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Mail, Send, Loader2, AlertCircle, CheckCircle, Trash2, Eye } from 'lucide-react';
+import { Mail, Send, Loader2, AlertCircle, CheckCircle, Trash2 } from 'lucide-react';
 import { getSubscribers, sendNewsletter, sendProjectAnnouncement, deleteSubscriber } from '../../lib/emailService';
 
 interface Subscriber {
