@@ -2,6 +2,7 @@ import { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Twitter, Linkedin, Instagram, Dribbble, Github, ArrowUpRight } from 'lucide-react';
+import NewsletterSignup from '../components/NewsletterSignup';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -81,6 +82,16 @@ const Footer = () => {
       ref={sectionRef}
       className="relative w-full bg-black pt-20 md:pt-32 pb-8"
     >
+      {/* Newsletter Signup */}
+      <div className="w-full px-6 md:px-12 lg:px-20 mb-20">
+        <div className="mb-6">
+          <p className="text-xs tracking-[0.3em] text-white/50 uppercase font-body mb-4">
+            Newsletter
+          </p>
+        </div>
+        <NewsletterSignup />
+      </div>
+
       {/* Top Section */}
       <div className="w-full px-6 md:px-12 lg:px-20">
         <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-12 mb-20">

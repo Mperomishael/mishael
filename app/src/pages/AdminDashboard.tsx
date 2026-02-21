@@ -5,8 +5,9 @@ import { LogOut } from 'lucide-react';
 import AdminWebDevelopment from '../components/admin/AdminWebDevelopment';
 import AdminBrandDesign from '../components/admin/AdminBrandDesign';
 import AdminAIAutomation from '../components/admin/AdminAIAutomation';
+import AdminEmailMarketing from '../components/admin/AdminEmailMarketing';
 
-type Tab = 'web' | 'brand' | 'ai';
+type Tab = 'web' | 'brand' | 'ai' | 'email';
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
@@ -60,6 +61,7 @@ const AdminDashboard = () => {
             { id: 'web', label: 'Web Development', icon: '🌐' },
             { id: 'brand', label: 'Brand Design', icon: '🎨' },
             { id: 'ai', label: 'AI Automation', icon: '⚡' },
+            { id: 'email', label: 'Email Marketing', icon: '📧' },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -82,6 +84,7 @@ const AdminDashboard = () => {
         {activeTab === 'web' && <AdminWebDevelopment />}
         {activeTab === 'brand' && <AdminBrandDesign />}
         {activeTab === 'ai' && <AdminAIAutomation />}
+        {activeTab === 'email' && <AdminEmailMarketing />}
       </div>
     </div>
   );

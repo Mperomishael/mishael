@@ -4,14 +4,15 @@ import { getFirestore } from 'firebase/firestore';
 import { getStorage } from 'firebase/storage';
 
 // Firebase configuration
-// Add your Firebase config here or use environment variables
 const firebaseConfig = {
-  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
-  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
-  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
-  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
-  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  apiKey: "AIzaSyAwMt3l5FKjabNDpu8ybVwaAdKi2DqdYQw",
+  authDomain: "mishael-port-folio.firebaseapp.com",
+  databaseURL: "https://mishael-port-folio-default-rtdb.firebaseio.com",
+  projectId: "mishael-port-folio",
+  storageBucket: "mishael-port-folio.firebasestorage.app",
+  messagingSenderId: "90852999870",
+  appId: "1:90852999870:web:1664dcba497c022effd4ef",
+  measurementId: "G-W9F0GG8Y6R"
 };
 
 // Initialize Firebase
