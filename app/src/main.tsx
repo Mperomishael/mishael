@@ -5,6 +5,7 @@ import './index.css'
 import App from './App.tsx'
 import AdminLogin from './pages/AdminLogin'
 import AdminDashboard from './pages/AdminDashboard'
+import NotFound from './pages/NotFound'
 import ProtectedRoute from './components/ProtectedRoute'
 import { AuthProvider } from './contexts/AuthContext'
 
@@ -23,6 +24,8 @@ createRoot(document.getElementById('root')!).render(
               </ProtectedRoute>
             }
           />
+          {/* Catch-all route for 404 */}
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>

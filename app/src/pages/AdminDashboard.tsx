@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
-import { LogOut, BarChart3, Settings } from 'lucide-react';
+import { LogOut, BarChart3, Settings, Loader2 } from 'lucide-react';
+import { firestore } from '../lib/firebase';
+import { collection, query, onSnapshot } from 'firebase/firestore';
 import AdminWebDevelopment from '../components/admin/AdminWebDevelopment';
 import AdminBrandDesign from '../components/admin/AdminBrandDesign';
 import AdminAIAutomation from '../components/admin/AdminAIAutomation';
@@ -9,10 +11,80 @@ import AdminEmailMarketing from '../components/admin/AdminEmailMarketing';
 
 type Tab = 'web' | 'brand' | 'ai' | 'email';
 
+interface DashboardMetrics {
+  portfolioItems: number;
+  subscribers: number;
+  emailsSent: number;
+  loading: boolean;
+}
+
 const AdminDashboard = () => {
   const navigate = useNavigate();
   const { currentUser, isAdmin, logout } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('web');
+  const [metrics, setMetrics] = useState<DashboardMetrics>({
+    portfolioItems: 0,
+    subscribers: 0,
+    emailsSent: 0,
+    loading: true,
+  });
+
+  // Fetch live metrics from Firestore
+  useEffect(() => {
+    let webCount = 0;
+    let brandCount = 0;
+    let aiCount = 0;
+    let loadedCollections = 0;
+
+    const unsubscribes: (() => void)[] = [];
+
+    // Web Development projects count
+    const webQuery = query(collection(firestore, 'webDevelopment'));
+    const unsubWeb = onSnapshot(webQuery, (snapshot) => {
+      webCount = snapshot.size;
+      loadedCollections++;
+      updatePortfolioItems();
+    });
+    unsubscribes.push(unsubWeb);
+
+    // Brand Design projects count
+    const brandQuery = query(collection(firestore, 'brandDesign'));
+    const unsubBrand = onSnapshot(brandQuery, (snapshot) => {
+      brandCount = snapshot.size;
+      loadedCollections++;
+      updatePortfolioItems();
+    });
+    unsubscribes.push(unsubBrand);
+
+    // AI Automation projects count
+    const aiQuery = query(collection(firestore, 'aiAutomation'));
+    const unsubAI = onSnapshot(aiQuery, (snapshot) => {
+      aiCount = snapshot.size;
+      loadedCollections++;
+      updatePortfolioItems();
+    });
+    unsubscribes.push(unsubAI);
+
+    // Subscribers count
+    const subscribersQuery = query(collection(firestore, 'subscribers'));
+    const unsubSubscribers = onSnapshot(subscribersQuery, (snapshot) => {
+      const count = snapshot.docs.filter((doc) => doc.data().status === 'active').length;
+      setMetrics((prev) => ({ ...prev, subscribers: count }));
+      if (loadedCollections === 3) {
+        setMetrics((prev) => ({ ...prev, loading: false }));
+      }
+    });
+    unsubscribes.push(unsubSubscribers);
+
+    const updatePortfolioItems = () => {
+      const total = webCount + brandCount + aiCount;
+      setMetrics((prev) => ({ ...prev, portfolioItems: total }));
+    };
+
+    return () => {
+      unsubscribes.forEach((unsub) => unsub());
+    };
+  }, []);
 
   if (!currentUser || !isAdmin) {
     return (
@@ -68,7 +140,9 @@ const AdminDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Portfolio Items</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white flex items-center gap-2">
+                    {metrics.loading ? <Loader2 size={20} className="animate-spin" /> : metrics.portfolioItems}
+                  </p>
                 </div>
                 <BarChart3 size={24} className="text-white/40" />
               </div>
@@ -77,7 +151,9 @@ const AdminDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Subscribers</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white flex items-center gap-2">
+                    {metrics.loading ? <Loader2 size={20} className="animate-spin" /> : metrics.subscribers}
+                  </p>
                 </div>
                 <BarChart3 size={24} className="text-white/40" />
               </div>
@@ -86,7 +162,9 @@ const AdminDashboard = () => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs text-white/60 uppercase tracking-wider mb-1">Emails Sent</p>
-                  <p className="text-2xl font-bold text-white">0</p>
+                  <p className="text-2xl font-bold text-white flex items-center gap-2">
+                    {metrics.loading ? <Loader2 size={20} className="animate-spin" /> : metrics.emailsSent}
+                  </p>
                 </div>
                 <BarChart3 size={24} className="text-white/40" />
               </div>

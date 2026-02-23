@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { firestore } from '../../lib/firebase';
-import { collection, query, onSnapshot, addDoc, deleteDoc, doc } from 'firebase/firestore';
-import { Trash2, Plus, Loader2 } from 'lucide-react';
+import { collection, query, onSnapshot, addDoc, deleteDoc, doc, updateDoc } from 'firebase/firestore';
+import { Trash2, Plus, Loader2, Edit2 } from 'lucide-react';
 import { toast } from 'sonner';
 import ImageUpload from '../ImageUpload';
 
@@ -27,6 +27,7 @@ const AdminBrandDesign = () => {
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
     subcategory: brandSubcategories[0],
@@ -57,31 +58,79 @@ const AdminBrandDesign = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.title || !formData.imageUrl) {
-      toast.error('Please fill in all required fields');
+    
+    // Validate inputs
+    if (!formData.title?.trim()) {
+      toast.error('Design title is required');
+      return;
+    }
+    
+    if (formData.title.trim().length < 3) {
+      toast.error('Design title must be at least 3 characters long');
+      return;
+    }
+    
+    if (!formData.imageUrl) {
+      toast.error('Design image is required');
       return;
     }
 
     setSubmitting(true);
     try {
-      await addDoc(collection(firestore, 'brandDesign'), {
-        ...formData,
-        createdAt: new Date(),
-      });
-      toast.success('Design added successfully');
+      if (editingId) {
+        await updateDoc(doc(firestore, 'brandDesign', editingId), {
+          ...formData,
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          updatedAt: new Date(),
+        });
+        toast.success('Design updated successfully');
+      } else {
+        await addDoc(collection(firestore, 'brandDesign'), {
+          ...formData,
+          title: formData.title.trim(),
+          description: formData.description.trim(),
+          createdAt: new Date(),
+        });
+        toast.success('Design added successfully');
+      }
       setFormData({
         subcategory: brandSubcategories[0],
         title: '',
         description: '',
         imageUrl: '',
       });
+      setEditingId(null);
       setShowForm(false);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error:', error);
-      toast.error('Failed to add design');
+      const errorMessage = error?.message || (editingId ? 'Failed to update design' : 'Failed to add design');
+      toast.error(errorMessage);
     } finally {
       setSubmitting(false);
     }
+  };
+
+  const handleEdit = (project: BrandProject) => {
+    setFormData({
+      subcategory: project.subcategory,
+      title: project.title,
+      description: project.description,
+      imageUrl: project.imageUrl,
+    });
+    setEditingId(project.id);
+    setShowForm(true);
+  };
+
+  const handleCancel = () => {
+    setFormData({
+      subcategory: brandSubcategories[0],
+      title: '',
+      description: '',
+      imageUrl: '',
+    });
+    setEditingId(null);
+    setShowForm(false);
   };
 
   const handleDelete = async (id: string) => {
@@ -106,7 +155,13 @@ const AdminBrandDesign = () => {
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-white">Brand Design Projects</h2>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm && !editingId) {
+              setShowForm(false);
+            } else if (!showForm) {
+              setShowForm(true);
+            }
+          }}
           className="flex items-center gap-2 px-4 py-2 bg-white text-black rounded-lg hover:bg-white/90 transition-all font-medium"
         >
           <Plus size={18} />
@@ -117,6 +172,7 @@ const AdminBrandDesign = () => {
       {/* Form */}
       {showForm && (
         <div className="p-6 rounded-lg bg-white/5 border border-white/10">
+          <h3 className="text-lg font-semibold text-white mb-4">{editingId ? 'Edit Design' : 'Add New Design'}</h3>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
@@ -186,11 +242,11 @@ const AdminBrandDesign = () => {
                 className="flex-1 py-2 bg-white text-black rounded-lg hover:bg-white/90 disabled:opacity-50 transition-all font-medium flex items-center justify-center gap-2"
               >
                 {submitting && <Loader2 size={18} className="animate-spin" />}
-                {submitting ? 'Adding...' : 'Add Design'}
+                {submitting ? (editingId ? 'Updating...' : 'Adding...') : (editingId ? 'Update Design' : 'Add Design')}
               </button>
               <button
                 type="button"
-                onClick={() => setShowForm(false)}
+                onClick={handleCancel}
                 className="flex-1 py-2 border border-white/20 rounded-lg hover:border-white/50 transition-colors text-white"
               >
                 Cancel
@@ -218,12 +274,22 @@ const AdminBrandDesign = () => {
               <div className="flex-1 min-w-0">
                 <div className="flex items-start justify-between mb-2">
                   <h3 className="font-semibold text-white truncate">{project.title}</h3>
-                  <button
-                    onClick={() => handleDelete(project.id)}
-                    className="p-2 hover:bg-red-500/20 rounded-lg transition-colors flex-shrink-0"
-                  >
-                    <Trash2 size={18} className="text-red-500" />
-                  </button>
+                  <div className="flex gap-2 flex-shrink-0">
+                    <button
+                      onClick={() => handleEdit(project)}
+                      className="p-2 hover:bg-blue-500/20 rounded-lg transition-colors"
+                      title="Edit design"
+                    >
+                      <Edit2 size={18} className="text-blue-400" />
+                    </button>
+                    <button
+                      onClick={() => handleDelete(project.id)}
+                      className="p-2 hover:bg-red-500/20 rounded-lg transition-colors"
+                      title="Delete design"
+                    >
+                      <Trash2 size={18} className="text-red-500" />
+                    </button>
+                  </div>
                 </div>
                 <p className="text-sm text-white/60 mb-2">{project.description}</p>
                 <span className="inline-block text-xs bg-white/10 px-2 py-1 rounded">

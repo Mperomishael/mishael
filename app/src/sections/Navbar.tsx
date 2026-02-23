@@ -93,14 +93,6 @@ const Navbar = () => {
               ))}
             </div>
 
-            {/* Admin Link */}
-            <button
-              onClick={() => navigate('/admin')}
-              className="hidden md:block px-4 py-2 text-xs text-white/60 hover:text-white font-body tracking-wider uppercase transition-colors duration-300 border-l border-white/20 ml-4 pl-4"
-            >
-              Admin
-            </button>
-
             {/* CTA Button */}
             <a
               href="#contact"

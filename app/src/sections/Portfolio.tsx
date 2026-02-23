@@ -19,28 +19,28 @@ const projects: Project[] = [
     title: 'Ethereal Visions',
     category: 'Brand Identity',
     image: '/project1.jpg',
-    description: 'Complete brand identity system for a luxury wellness brand',
+    description: 'Premium brand identity system crafted for a luxury wellness brand based in Delta State. Encompassing comprehensive visual guidelines, custom typography, and cohesive design language that elevated the brand presence across all digital and physical touchpoints.',
   },
   {
     id: 2,
     title: 'Neon Dynamics',
     category: 'Web Development',
     image: '/project2.jpg',
-    description: 'High-performance e-commerce platform with custom animations',
+    description: 'High-performance e-commerce platform developed for a Delta State-based retailer. Features custom animations, optimized checkout flow, real-time inventory management, and mobile-first responsive design achieving 98+ Lighthouse scores.',
   },
   {
     id: 3,
     title: 'Quantum UI',
     category: 'Software Design',
     image: '/project3.jpg',
-    description: 'AI-powered dashboard for data analytics and visualization',
+    description: 'AI-powered analytics dashboard designed for enterprise insights. Built with advanced data visualization, real-time metrics tracking, predictive analytics, and an intuitive interface serving over 500+ monthly active users across the region.',
   },
   {
     id: 4,
     title: 'Cyber Systems',
     category: 'AI Automation',
     image: '/project4.jpg',
-    description: 'Automated workflow system for enterprise operations',
+    description: 'Enterprise automation solution streamlining operations for Delta State-based corporations. Integrated intelligent workflows reducing manual tasks by 85%, featuring API integrations, custom workflows, and comprehensive analytics dashboard.',
   },
 ];
 
