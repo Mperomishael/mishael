@@ -101,10 +101,10 @@ const Footer = () => {
               Start a Project
             </p>
             <a
-              href="mailto:hello@mishael-yakubu.com"
+              href="mailto:empiredigitalsworldwide@gmail.com"
               className="font-display text-2xl md:text-3xl font-bold text-white hover:text-white/80 transition-colors duration-300"
             >
-              hello@mishael-yakubu.com
+              empiredigitalsworldwide@gmail.com
             </a>
           </div>
 
