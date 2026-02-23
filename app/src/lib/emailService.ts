@@ -4,7 +4,12 @@ import { firestore } from './firebase';
 
 // Initialize Resend - store API key in environment variable
 const RESEND_API_KEY = import.meta.env.VITE_RESEND_API_KEY;
-const resend = new Resend(RESEND_API_KEY);
+
+if (!RESEND_API_KEY) {
+  console.warn('VITE_RESEND_API_KEY is not set. Email service will not work.');
+}
+
+const resend = RESEND_API_KEY ? new Resend(RESEND_API_KEY) : null;
 
 // Email templates
 export const emailTemplates = {
@@ -112,6 +117,10 @@ export const emailTemplates = {
 // Add subscriber to Firestore and send welcome email
 export const addSubscriber = async (email: string, name?: string) => {
   try {
+    if (!resend) {
+      console.warn('Resend service not configured');
+    }
+
     // Check if email already exists
     const q = query(collection(firestore, 'subscribers'), where('email', '==', email));
     const existingDocs = await getDocs(q);
@@ -130,20 +139,28 @@ export const addSubscriber = async (email: string, name?: string) => {
       lastEmailSent: null
     });
 
-    // Send welcome email via Resend
-    const portfolioUrl = window.location.origin;
-    await resend.emails.send({
-      from: 'noreply@empiredigitalsworldwide.com',
-      to: email,
-      subject: 'Welcome to Empire Digital Worldwide!',
-      html: emailTemplates.welcome(name || 'Subscriber', portfolioUrl)
-    });
+    // Send welcome email via Resend if configured
+    if (resend) {
+      try {
+        const portfolioUrl = window.location.origin;
+        await resend.emails.send({
+          from: 'noreply@empiredigitalsworldwide.com',
+          to: email,
+          subject: 'Welcome to Empire Digital Worldwide!',
+          html: emailTemplates.welcome(name || 'Subscriber', portfolioUrl)
+        });
 
-    // Mark welcome email as sent
-    await updateDoc(doc(firestore, 'subscribers', docRef.id), {
-      receivedWelcome: true,
-      lastEmailSent: new Date()
-    });
+        // Mark welcome email as sent
+        await updateDoc(doc(firestore, 'subscribers', docRef.id), {
+          receivedWelcome: true,
+          lastEmailSent: new Date()
+        });
+      } catch (emailError) {
+        console.error('Email send error:', emailError);
+        // Still keep subscriber even if email fails
+        console.warn('Subscriber added but welcome email could not be sent');
+      }
+    }
 
     return { success: true, message: 'Successfully subscribed!' };
   } catch (error) {
@@ -178,34 +195,51 @@ export const sendProjectAnnouncement = async (
   category: string
 ) => {
   try {
+    if (!resend) {
+      return { success: false, message: 'Email service not configured' };
+    }
+
     const subscribers = await getSubscribers();
+
+    if (subscribers.length === 0) {
+      return { success: false, message: 'No subscribers to send to' };
+    }
 
     const portfolioUrl = window.location.origin;
     const emailHtml = emailTemplates.projectAnnouncement(projectName, category, portfolioUrl);
     
-    // Send to all subscribers
+    // Send to all subscribers with error tracking
     const batch = writeBatch(firestore);
+    let successCount = 0;
+    let errorCount = 0;
     
     for (const subscriber of subscribers) {
       if (subscriber.email) {
-        await resend.emails.send({
-          from: 'noreply@empiredigitalsworldwide.com',
-          to: subscriber.email,
-          subject: `New ${category} Project: ${projectName}`,
-          html: emailHtml
-        });
+        try {
+          await resend.emails.send({
+            from: 'noreply@empiredigitalsworldwide.com',
+            to: subscriber.email,
+            subject: `New ${category} Project: ${projectName}`,
+            html: emailHtml
+          });
+          successCount++;
 
-        // Update last email sent timestamp
-        const q = query(collection(firestore, 'subscribers'), where('email', '==', subscriber.email));
-        const docs = await getDocs(q);
-        docs.forEach(docSnap => {
-          batch.update(docSnap.ref, { lastEmailSent: new Date() });
-        });
+          // Update last email sent timestamp
+          const q = query(collection(firestore, 'subscribers'), where('email', '==', subscriber.email));
+          const docs = await getDocs(q);
+          docs.forEach(docSnap => {
+            batch.update(docSnap.ref, { lastEmailSent: new Date() });
+          });
+        } catch (emailError) {
+          console.error(`Failed to send to ${subscriber.email}:`, emailError);
+          errorCount++;
+        }
       }
     }
 
     await batch.commit();
-    return { success: true, message: `Announcement sent to ${subscribers.length} subscribers` };
+    const message = `Announcement sent to ${successCount} of ${subscribers.length} subscribers${errorCount > 0 ? ` (${errorCount} failed)` : ''}`;
+    return { success: true, message };
   } catch (error) {
     console.error('Error sending announcement:', error);
     return { success: false, message: 'Error sending emails' };
@@ -215,30 +249,45 @@ export const sendProjectAnnouncement = async (
 // Send newsletter to all subscribers
 export const sendNewsletter = async (subject: string, content: string) => {
   try {
+    if (!resend) {
+      return { success: false, message: 'Email service not configured' };
+    }
+
     const subscribers = await getSubscribers();
+
+    if (subscribers.length === 0) {
+      return { success: false, message: 'No subscribers to send to' };
+    }
+
     const emailHtml = emailTemplates.newsletter(subject, content);
+    
+    let successCount = 0;
+    let errorCount = 0;
+    const batch = writeBatch(firestore);
 
     for (const subscriber of subscribers) {
       if (subscriber.email) {
-        await resend.emails.send({
-          from: 'noreply@empiredigitalsworldwide.com',
-          to: subscriber.email,
-          subject,
-          html: emailHtml
-        });
+        try {
+          await resend.emails.send({
+            from: 'noreply@empiredigitalsworldwide.com',
+            to: subscriber.email,
+            subject,
+            html: emailHtml
+          });
+          successCount++;
+          batch.update(doc(firestore, 'subscribers', subscriber.id), {
+            lastEmailSent: new Date()
+          });
+        } catch (emailError) {
+          console.error(`Failed to send to ${subscriber.email}:`, emailError);
+          errorCount++;
+        }
       }
     }
-
-    // Update last email sent for all subscribers
-    const batch = writeBatch(firestore);
-    for (const subscriber of subscribers) {
-      batch.update(doc(firestore, 'subscribers', subscriber.id), {
-        lastEmailSent: new Date()
-      });
-    }
+    
     await batch.commit();
-
-    return { success: true, message: `Newsletter sent to ${subscribers.length} subscribers` };
+    const message = `Newsletter sent to ${successCount} of ${subscribers.length} subscribers${errorCount > 0 ? ` (${errorCount} failed)` : ''}`;
+    return { success: true, message };
   } catch (error) {
     console.error('Error sending newsletter:', error);
     return { success: false, message: 'Error sending newsletter' };
