@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Send, Mail, MapPin, Phone } from 'lucide-react';
+import { Send, Mail, MapPin, Phone, MessageCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -105,14 +105,20 @@ const Contact = () => {
     {
       icon: Mail,
       label: 'Email',
-      value: 'hello@mishael-yakubu.com',
-      href: 'mailto:hello@mishael-yakubu.com',
+      value: 'empiredigitalsworldwide@gmail.com',
+      href: 'mailto:empiredigitalsworldwide@gmail.com',
     },
     {
       icon: Phone,
       label: 'Phone',
-      value: '+234 123 456 7890',
-      href: 'tel:+2341234567890',
+      value: '+234 814 265 6848',
+      href: 'tel:+2348142656848',
+    },
+    {
+      icon: MessageCircle,
+      label: 'WhatsApp',
+      value: '+234 708 675 7575',
+      href: 'https://wa.me/2347086757575',
     },
     {
       icon: MapPin,
