@@ -12,6 +12,7 @@
   "dependencies": {
     "firebase": "^11.0.0",
     "react-router-dom": "^6.24.0",
+    "react-oauth/google": "^0.12.1",
     "resend": "^4.0.0",
     "@hookform/resolvers": "^5.2.2",
     "@radix-ui/react-accordion": "^1.2.12",
