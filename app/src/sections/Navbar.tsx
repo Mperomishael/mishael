@@ -8,6 +8,7 @@ const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [isVisible, setIsVisible] = useState(true);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [adminClicks, setAdminClicks] = useState(0);
   const lastScrollY = useRef(0);
   const navRef = useRef<HTMLElement>(null);
 
@@ -57,6 +58,23 @@ const Navbar = () => {
     }
   };
 
+  const handleAdminLogoClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    e.preventDefault();
+    const newCount = adminClicks + 1;
+    setAdminClicks(newCount);
+    
+    // Navigate to admin after 5 clicks
+    if (newCount >= 5) {
+      navigate('/admin');
+      setAdminClicks(0);
+    }
+    
+    // Reset counter after 3 seconds of inactivity
+    setTimeout(() => {
+      setAdminClicks(0);
+    }, 3000);
+  };
+
   return (
     <>
       <nav
@@ -72,10 +90,16 @@ const Navbar = () => {
             {/* Logo */}
             <a
               href="#home"
-              onClick={(e) => handleLinkClick(e, '#home')}
-              className="font-display text-2xl font-bold text-white tracking-tight hover:opacity-80 transition-opacity"
+              onClick={handleAdminLogoClick}
+              className="font-display text-2xl font-bold text-white tracking-tight hover:opacity-80 transition-opacity cursor-pointer relative group"
+              title={adminClicks > 0 ? `Admin: ${adminClicks}/5` : 'Mishael'}
             >
               Mishael
+              {adminClicks > 0 && (
+                <span className="absolute -bottom-1 -right-2 text-xs opacity-50 text-white">
+                  {adminClicks}/5
+                </span>
+              )}
             </a>
 
             {/* Desktop Navigation */}

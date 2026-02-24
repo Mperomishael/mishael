@@ -20,7 +20,7 @@ interface DashboardMetrics {
 
 const AdminDashboard = () => {
   const navigate = useNavigate();
-  const { currentUser, isAdmin, logout } = useAuth();
+  const { currentUser, isAdmin, logout, loading: authLoading } = useAuth();
   const [activeTab, setActiveTab] = useState<Tab>('web');
   const [metrics, setMetrics] = useState<DashboardMetrics>({
     portfolioItems: 0,
@@ -28,6 +28,36 @@ const AdminDashboard = () => {
     emailsSent: 0,
     loading: true,
   });
+
+  // Show loading while auth is being determined
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <Loader2 size={32} className="animate-spin text-white mb-4 mx-auto" />
+          <p className="text-white/60">Loading admin dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // Redirect if not authenticated or not admin
+  if (!currentUser || !isAdmin) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="text-center">
+          <p className="text-white/60 mb-4">You are not authorized to access this page</p>
+          <p className="text-white/40 text-sm mb-6">Please sign in with an authorized account</p>
+          <button
+            onClick={() => navigate('/admin')}
+            className="px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 transition-all font-semibold"
+          >
+            Go to Login
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   // Fetch live metrics from Firestore
   useEffect(() => {
@@ -85,22 +115,6 @@ const AdminDashboard = () => {
       unsubscribes.forEach((unsub) => unsub());
     };
   }, []);
-
-  if (!currentUser || !isAdmin) {
-    return (
-      <div className="min-h-screen bg-black flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-white/60 mb-4">You are not authorized to access this page</p>
-          <button
-            onClick={() => navigate('/admin')}
-            className="px-6 py-3 bg-white text-black rounded-lg hover:bg-white/90 transition-all"
-          >
-            Go to Login
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const handleLogout = async () => {
     await logout();
