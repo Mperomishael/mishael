@@ -168,7 +168,7 @@ const AdminLogin = () => {
             {/* Security Notice */}
             <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20 backdrop-blur-sm">
               <p className="text-xs text-blue-300/70 leading-relaxed">
-                🔒 <strong>Secure Authentication:</strong> Only authorized admins have access here.
+                🔒 <strong>Secure Authentication:</strong> Only authorized admins have access here.</p> 
             </div>
 
             {/* Features */}
