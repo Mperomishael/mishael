@@ -146,7 +146,7 @@ const AdminLogin = () => {
               <div className="w-full border-t border-white/10" />
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-3 bg-black text-white/50">Firebase Authentication</span>
+              <span className="px-3 bg-black text-white/50">Only For Mishael Yakubu</span>
             </div>
           </div>
 
@@ -168,8 +168,7 @@ const AdminLogin = () => {
             {/* Security Notice */}
             <div className="p-5 rounded-xl bg-blue-500/5 border border-blue-500/20 backdrop-blur-sm">
               <p className="text-xs text-blue-300/70 leading-relaxed">
-                🔒 <strong>Secure Authentication:</strong> Sign in using your Google account. Only accounts with verified emails in the authorized list above can access the admin dashboard. Your password remains secure with Google's authentication.
-              </p>
+                🔒 <strong>Secure Authentication:</strong> Only authorized admins have access here.
             </div>
 
             {/* Features */}
